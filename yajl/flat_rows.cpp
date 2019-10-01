@@ -6,6 +6,11 @@
 
 void 
 init_context(Context* ctx) {
+    // allocating items map
+    ITEMS_TYPE* items = new ITEMS_TYPE();
+    ctx->items = items;
+    
+    // initializing state
     ctx->state = wait_start;
 }
 
@@ -58,12 +63,12 @@ parse_integer(void* ctx_, long long value) {
     if (ctx->state == wait_value) {
         ctx->state = wait_key;
 
-        if (ctx->items.count(ctx->key) == 0) {
+        if (ctx->items->count(ctx->key) == 0) {
             std::vector<int>* vec = new std::vector<int>();
             vec->push_back(value);
-            ctx->items[ctx->key] = vec;
+            (*ctx->items)[ctx->key] = vec;
         } else {
-            ctx->items[ctx->key]->push_back(value);
+            (*ctx->items)[ctx->key]->push_back(value);
         }
 
         return CLIENT_SUCCESS;
@@ -114,49 +119,32 @@ static yajl_callbacks callbacks = {
 };
 
 
-int
-main(int argc, char** argv) {
-    static unsigned char file_data[65536];
+static void dealloc_items(ITEMS_TYPE* items) {
+    for (ITEMS_TYPE::iterator it = items->begin();
+            it != items->end();
+            it++) {
+        delete it->second;
+    }
+}
+
+
+ITEMS_TYPE*
+parse(unsigned char* buffer, size_t size) {
     Context ctx;
     init_context(&ctx);
+
     yajl_handle hand = yajl_alloc(&callbacks, NULL, (void*) &ctx);
     yajl_status stat;
 
-    FILE* fp = fopen(argv[1], "r");
-    int rd;
-    
-    for (;;) {
-        rd = fread((void*) file_data, 1, sizeof(file_data), fp);
-        if (rd == 0) {
-            break;
-        }
-
-        file_data[rd] = 0;
-        stat = yajl_parse(hand, file_data, rd);
-
-        if (stat == yajl_status_ok) break;
-    }
-
-    stat = yajl_complete_parse(hand);
-    printf("parse status: %d\n", stat);
-
-    std::map<std::string,std::vector<int>* >::iterator it;
-    for (it = ctx.items.begin(); it != ctx.items.end(); it++) {
-        std::vector<int>* vec = it->second;
-        int sum = 0;
-
-        for (std::vector<int>::iterator it_ = vec->begin(); 
-                it_ != vec->end(); 
-                it_++) {
-            sum += *it_;
-        }
-
-        std::cout << "sum of " << it->first << " items is " 
-            << sum << std::endl;
-    }
-
+    stat = yajl_parse(hand, buffer, size);
+    std::cerr << "parse status: " << stat << std::endl;
     yajl_free(hand);
-    fclose(fp);
-    return 0;
+
+    if (stat != yajl_status_ok) {
+        dealloc_items(ctx.items);
+        return NULL;
+    }
+
+    return ctx.items;
 }
 
