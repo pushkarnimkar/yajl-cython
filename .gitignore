@@ -2,4 +2,4 @@ a.out
 .spyproject
 *.o
 *.swp
-
+__pycache__/
