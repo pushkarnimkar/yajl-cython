@@ -25,6 +25,10 @@ simple_array: DEFS += -DSIMPLE_ARRAY
 simple_array: prepare clean_stub ${OBJS}/simple_array.o ${OBJS}/stub.o simple_array.h
 	${CC} ${OBJS}/simple_array.o ${OBJS}/stub.o -o ${BINS}/simple_array ${LIBS}
 
+complex_object: DEFS += -DCOMPLEX_OBJECT
+complex_object: prepare clean_stub ${OBJS}/complex_object.o ${OBJS}/stub.o complex_object.h
+	${CC} ${OBJS}/complex_object.o ${OBJS}/stub.o -o ${BINS}/complex_object ${LIBS}
+
 clean:
 	test -d ${OBJS} && rm -rf ${OBJS} || exit 0
 	test -d ${BINS} && rm -rf ${BINS} || exit 0

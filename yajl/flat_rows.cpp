@@ -7,7 +7,7 @@
 void 
 init_context(Context* ctx) {
     // allocating items map
-    ITEMS_TYPE* items = new ITEMS_TYPE();
+    ITEMS_TYPE(int)* items = new ITEMS_TYPE(int)();
     ctx->items = items;
     
     // initializing state
@@ -119,8 +119,8 @@ static yajl_callbacks callbacks = {
 };
 
 
-static void dealloc_items(ITEMS_TYPE* items) {
-    for (ITEMS_TYPE::iterator it = items->begin();
+static void dealloc_items(ITEMS_TYPE(int)* items) {
+    for (ITEMS_TYPE(int)::iterator it = items->begin();
             it != items->end();
             it++) {
         delete it->second;
@@ -128,7 +128,7 @@ static void dealloc_items(ITEMS_TYPE* items) {
 }
 
 
-ITEMS_TYPE*
+ITEMS_TYPE(int)*
 parse(unsigned char* buffer, size_t size) {
     Context ctx;
     init_context(&ctx);

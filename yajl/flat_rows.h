@@ -4,7 +4,7 @@
 
 #define CLIENT_FAILURE 0
 #define CLIENT_SUCCESS 1
-#define ITEMS_TYPE std::map<std::string,std::vector<int>*>
+#define ITEMS_TYPE(t) std::map<std::string,std::vector<t>*>
 
 
 typedef enum {
