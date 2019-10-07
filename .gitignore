@@ -3,3 +3,4 @@ a.out
 *.o
 *.swp
 __pycache__/
+tmp/

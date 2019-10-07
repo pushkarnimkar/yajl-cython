@@ -47,5 +47,5 @@ typedef struct {
 // initializing routine
 void init_context(Context*);
 
-ComplexReturnType* parse(unsigned char*, size_t);
+ComplexReturnType* parse(const unsigned char*, size_t);
 

@@ -183,7 +183,7 @@ static void dealloc_items(ITEMS_TYPE(T) items) {
 
 
 ComplexReturnType*
-parse(unsigned char* buffer, size_t size) {
+parse(const unsigned char* buffer, size_t size) {
     Context ctx;
     init_context(&ctx);
 
