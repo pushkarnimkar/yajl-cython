@@ -39,6 +39,29 @@ update_context_value(Context* ctx, float value) {
 
 
 static int
+parse_null(void* ctx_) {
+    Context* ctx = (Context*) ctx_;
+
+    if (ctx->state == wait_value0) {
+        ctx->state = wait_key0;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_value1) {
+        ctx->state = wait_key1;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_value2) {
+        ctx->state = wait_key2;
+        return CLIENT_SUCCESS;
+    }
+
+    return CLIENT_FAILURE;
+}
+
+
+static int
 parse_integer(void* ctx_, long long val) {
      Context* ctx = (Context*) ctx_;
 
@@ -87,6 +110,19 @@ parse_double(void* ctx_, double val) {
      }
 
      return CLIENT_FAILURE;
+}
+
+
+static int
+parse_string(void* ctx_, const unsigned char* str, size_t size) {
+    Context* ctx = (Context*) ctx_;
+
+    if (ctx->state == wait_value0) {
+        ctx->state = wait_key0;
+        return CLIENT_SUCCESS;
+    }
+
+    return CLIENT_FAILURE;
 }
 
 
@@ -198,12 +234,12 @@ parse_end_array(void* ctx_) {
 
 
 static yajl_callbacks callbacks = {
-    NULL,               // yajl_null
+    parse_null,         // yajl_null
     NULL,               // yajl_boolean
     parse_integer,      // yajl_integer
     parse_double,       // yajl_double
     NULL,               // yajl_number
-    NULL,               // yajl_string
+    parse_string,       // yajl_string
     parse_start_map,    // yajl_start_map
     parse_map_key,      // yajl_map_key
     parse_end_map,      // yajl_end_map
