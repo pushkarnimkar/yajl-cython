@@ -33,6 +33,10 @@ complex_object: DEFS += -DCOMPLEX_OBJECT
 complex_object: prepare clean_stub ${OBJS}/complex_object.o ${OBJS}/stub.o
 	${CC} ${OBJS}/complex_object.o ${OBJS}/stub.o -o ${BINS}/complex_object ${LIBS}
 
+more_complex: DEFS += -DMORE_COMPLEX
+more_complex: prepare clean_stub ${OBJS}/more_complex.o ${OBJS}/stub.o
+	${CC} ${OBJS}/more_complex.o ${OBJS}/stub.o -o ${BINS}/more_complex ${LIBS}
+
 clean:
 	test -d ${OBJS} && rm -rf ${OBJS} || exit 0
 	test -d ${BINS} && rm -rf ${BINS} || exit 0

@@ -8,6 +8,8 @@
 #  include "simple_array.h"
 #elif defined COMPLEX_OBJECT
 #  include "complex_object.h"
+#elif defined MORE_COMPLEX
+#  include "more_complex.h"
 #endif
 
 
@@ -75,6 +77,30 @@ void complex_object(unsigned char* buffer, int length) {
     }
 }
 
+#elif defined MORE_COMPLEX
+void more_complex(unsigned char* buffer, int length) {
+    ComplexReturnType* res = parse(buffer, length);
+
+    if (res == NULL) {
+        std::cout << "parsing failed" << std::endl;
+        return;
+    }
+
+    ITEMS_TYPE(float) items = res->items;
+    
+    for (ITEMS_TYPE(float)::iterator it = items.begin();
+            it != items.end();
+            it++) {
+        float sum = 0;
+        for (std::vector<float>::iterator itv = it->second.begin();
+                itv != it->second.end();
+                itv++) {
+            sum += *itv;
+        }
+        std::cout << it->first << " => " << sum << std::endl;
+    }
+}
+
 #endif
 
 
@@ -101,6 +127,10 @@ main(int argc, char** argv) {
 #elif defined COMPLEX_OBJECT
     std::cout << "parsing complex object format ..." << std::endl;
     complex_object(buffer, length);
+
+#elif defined MORE_COMPLEX
+    std::cout << "parsing more complex format ..." << std::endl;
+    more_complex(buffer, length);
 
 #else
     std::cout << "no parse format built!" << std::endl;
