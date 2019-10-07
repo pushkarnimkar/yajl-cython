@@ -53,21 +53,21 @@ void flat_rows(unsigned char* buffer, int length) {
 
 #elif defined COMPLEX_OBJECT
 void complex_object(unsigned char* buffer, int length) {
-    ComplexReturnType res = parse(buffer, length);
+    ComplexReturnType* res = parse(buffer, length);
 
-    if (res.items == NULL) {
+    if (res == NULL) {
         std::cout << "parsing failed" << std::endl;
         return;
     }
 
-    ITEMS_TYPE(float)* items = res.items;
+    ITEMS_TYPE(float) items = res->items;
     
-    for (ITEMS_TYPE(float)::iterator it = items->begin();
-            it != items->end();
+    for (ITEMS_TYPE(float)::iterator it = items.begin();
+            it != items.end();
             it++) {
         float sum = 0;
-        for (std::vector<float>::iterator itv = it->second->begin();
-                itv != it->second->end();
+        for (std::vector<float>::iterator itv = it->second.begin();
+                itv != it->second.end();
                 itv++) {
             sum += *itv;
         }

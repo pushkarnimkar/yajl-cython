@@ -4,7 +4,7 @@
 
 #define CLIENT_FAILURE 0
 #define CLIENT_SUCCESS 1
-#define ITEMS_TYPE(t) std::map<std::string,std::vector<t>*>
+#define ITEMS_TYPE(t) std::map<std::string,std::vector<t> >
 
 
 typedef enum {
@@ -30,22 +30,22 @@ typedef struct {
 
     // index map records row_index of each entry in items. this gives 
     // flexibility of handling variable number of entries per row
-    std::map<std::string,std::vector<int>* >* index;
+    ITEMS_TYPE(int) index;
 
     // saves actual data
-    std::map<std::string,std::vector<float>* >* items;
+    ITEMS_TYPE(float) items;
 } Context;
 
 
 // convenience structure for return type
 typedef struct {
-    ITEMS_TYPE(int)* index;
-    ITEMS_TYPE(float)* items;
+    ITEMS_TYPE(int) index;
+    ITEMS_TYPE(float) items;
 } ComplexReturnType;
 
 
 // initializing routine
 void init_context(Context*);
 
-ComplexReturnType parse(unsigned char*, size_t);
+ComplexReturnType* parse(unsigned char*, size_t);
 

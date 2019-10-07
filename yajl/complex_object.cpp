@@ -5,13 +5,16 @@
 
 void
 init_context(Context* ctx) {
-    // allocating index map
-    ctx->index = new ITEMS_TYPE(int)();
-    // allocating items map
-    ctx->items = new ITEMS_TYPE(float)();
+    ITEMS_TYPE(int)* index = new ITEMS_TYPE(int);
+    ctx->index = *index;
+
+    ITEMS_TYPE(float)* items = new ITEMS_TYPE(float);
+    ctx->items = *items;
 
     // ready to receive next row
     ctx->row_index = -1;
+
+    // initialiazing state as waiting for parse
     ctx->state = wait_start;
 }
 
@@ -25,13 +28,13 @@ init_context(Context* ctx) {
  */
 static void 
 update_context_value(Context* ctx, float value) {
-    if (ctx->items->count(ctx->key) == 0) {
-        (*ctx->items)[ctx->key] = new std::vector<float>();
-        (*ctx->index)[ctx->key] = new std::vector<int>();
+    if (ctx->items.count(ctx->key) == 0) {
+        ctx->items[ctx->key] = *(new std::vector<float>());
+        ctx->index[ctx->key] = *(new std::vector<int>());
     }
 
-    (*ctx->items)[ctx->key]->push_back(value);
-    (*ctx->index)[ctx->key]->push_back(ctx->row_index);
+    ctx->items[ctx->key].push_back(value);
+    ctx->index[ctx->key].push_back(ctx->row_index);
 }
 
 
@@ -167,18 +170,20 @@ static yajl_callbacks callbacks = {
 
 
 template<typename T>
-static void dealloc_items(ITEMS_TYPE(T)* items) {
+static void dealloc_items(ITEMS_TYPE(T) items) {
     // https://stackoverflow.com/questions/610245
-    for (typename ITEMS_TYPE(T)::iterator it = items->begin();
-            it != items->end();
+    for (typename ITEMS_TYPE(T)::iterator it = items.begin();
+            it != items.end();
             it++) {
-        delete it->second;
+        delete &(it->second);
     }
+
+    delete &items;
 }
 
 
 
-ComplexReturnType
+ComplexReturnType*
 parse(unsigned char* buffer, size_t size) {
     Context ctx;
     init_context(&ctx);
@@ -190,14 +195,16 @@ parse(unsigned char* buffer, size_t size) {
     std::cerr << "parse status: " << stat << std::endl;
     yajl_free(hand);
 
-    ComplexReturnType res;
-
+    
     if (stat != yajl_status_ok) {
+        dealloc_items(ctx.index);
         dealloc_items(ctx.items);
-        res = {NULL, NULL};
-    } else {
-        res = {ctx.index, ctx.items};
-    }
+        return NULL;
+    } 
+
+    ComplexReturnType *res = new ComplexReturnType;
+    res->index = ctx.index;
+    res->items = ctx.items;
 
     return res;
 }
