@@ -171,14 +171,13 @@ static yajl_callbacks callbacks = {
 
 template<typename T>
 static void dealloc_items(ITEMS_TYPE(T) items) {
-    // https://stackoverflow.com/questions/610245
     for (typename ITEMS_TYPE(T)::iterator it = items.begin();
             it != items.end();
             it++) {
-        delete &(it->second);
+        // we hope that this deletes the vector this is holding although, 
+        // review by an experienced c++ developer will be good
+        items.erase(it->first);
     }
-
-    delete &items;
 }
 
 
@@ -195,7 +194,6 @@ parse(unsigned char* buffer, size_t size) {
     std::cerr << "parse status: " << stat << std::endl;
     yajl_free(hand);
 
-    
     if (stat != yajl_status_ok) {
         dealloc_items(ctx.index);
         dealloc_items(ctx.items);
