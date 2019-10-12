@@ -86,13 +86,13 @@ void more_complex(unsigned char* buffer, int length) {
         return;
     }
 
-    ITEMS_TYPE(float) items = res->items;
+    ITEMS_TYPE(ITEMS_DTYPE) items = res->items;
     
-    for (ITEMS_TYPE(float)::iterator it = items.begin();
+    for (ITEMS_TYPE(ITEMS_DTYPE)::iterator it = items.begin();
             it != items.end();
             it++) {
-        float sum = 0;
-        for (std::vector<float>::iterator itv = it->second.begin();
+        ITEMS_DTYPE sum = 0;
+        for (std::vector<ITEMS_DTYPE>::iterator itv = it->second.begin();
                 itv != it->second.end();
                 itv++) {
             sum += *itv;

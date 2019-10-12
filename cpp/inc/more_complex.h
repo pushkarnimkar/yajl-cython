@@ -4,6 +4,7 @@
 
 #define CLIENT_FAILURE 0
 #define CLIENT_SUCCESS 1
+#define ITEMS_DTYPE double
 #define ITEMS_TYPE(t) std::map<std::string,std::vector<t> >
 
 
@@ -17,6 +18,9 @@ typedef enum {
     wait_value1,
     wait_key2,
     wait_value2,
+    wait_key3,
+    wait_array3,
+    wait_value3,
     complete
 } ParseState;
 
@@ -37,14 +41,14 @@ typedef struct {
     ITEMS_TYPE(int) index;
 
     // saves actual data
-    ITEMS_TYPE(float) items;
+    ITEMS_TYPE(ITEMS_DTYPE) items;
 } Context;
 
 
 // convenience structure for return type
 typedef struct {
     ITEMS_TYPE(int) index;
-    ITEMS_TYPE(float) items;
+    ITEMS_TYPE(ITEMS_DTYPE) items;
 } ComplexReturnType;
 
 

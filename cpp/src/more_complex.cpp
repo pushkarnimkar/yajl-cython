@@ -8,7 +8,7 @@ init_context(Context* ctx) {
     ITEMS_TYPE(int)* index = new ITEMS_TYPE(int);
     ctx->index = *index;
 
-    ITEMS_TYPE(float)* items = new ITEMS_TYPE(float);
+    ITEMS_TYPE(ITEMS_DTYPE)* items = new ITEMS_TYPE(ITEMS_DTYPE);
     ctx->items = *items;
 
     // ready to receive next row
@@ -27,9 +27,9 @@ init_context(Context* ctx) {
  * WARNING: does not check parsing state.
  */
 static void 
-update_context_value(Context* ctx, float value) {
+update_context_value(Context* ctx, ITEMS_DTYPE value) {
     if (ctx->items.count(ctx->key) == 0) {
-        ctx->items[ctx->key] = *(new std::vector<float>());
+        ctx->items[ctx->key] = *(new std::vector<ITEMS_DTYPE>());
         ctx->index[ctx->key] = *(new std::vector<int>());
     }
 
@@ -41,6 +41,7 @@ update_context_value(Context* ctx, float value) {
 static int
 parse_null(void* ctx_) {
     Context* ctx = (Context*) ctx_;
+    update_context_value(ctx, -1);
 
     if (ctx->state == wait_value0) {
         ctx->state = wait_key0;
@@ -67,19 +68,24 @@ parse_integer(void* ctx_, long long val) {
 
      if (ctx->state == wait_value2) {
          ctx->state = wait_key2;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
      if (ctx->state == wait_value1) {
          ctx->state = wait_key1;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
+         return CLIENT_SUCCESS;
+     }
+
+     if (ctx->state == wait_value3) {
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
      if (ctx->state == wait_value0) {
          ctx->state = wait_key0;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
@@ -93,19 +99,24 @@ parse_double(void* ctx_, double val) {
 
      if (ctx->state == wait_value2) {
          ctx->state = wait_key2;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
      if (ctx->state == wait_value1) {
          ctx->state = wait_key1;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
+         return CLIENT_SUCCESS;
+     }
+
+     if (ctx->state == wait_value3) {
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
      if (ctx->state == wait_value0) {
          ctx->state = wait_key0;
-         update_context_value(ctx, (float) val);
+         update_context_value(ctx, (ITEMS_DTYPE) val);
          return CLIENT_SUCCESS;
      }
 
@@ -119,6 +130,11 @@ parse_string(void* ctx_, const unsigned char* str, size_t size) {
 
     if (ctx->state == wait_value0) {
         ctx->state = wait_key0;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_array3) {
+        ctx->state = wait_key3;
         return CLIENT_SUCCESS;
     }
 
@@ -137,6 +153,11 @@ parse_start_map(void* ctx_) {
 
     if (ctx->state == wait_map1) {
         ctx->state = wait_key1;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_value0) {
+        ctx->state = wait_key3;
         return CLIENT_SUCCESS;
     }
 
@@ -170,6 +191,11 @@ parse_map_key(void* ctx_, const unsigned char* key, size_t size) {
         return CLIENT_SUCCESS;
     }
 
+    if (ctx->state == wait_key3) {
+        ctx->state = wait_array3;
+        return CLIENT_SUCCESS;
+    }
+
     return CLIENT_FAILURE;
 }
 
@@ -185,6 +211,11 @@ parse_end_map(void* ctx_) {
 
     if (ctx->state == wait_key1) {
         ctx->state = wait_map1;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_key3) {
+        ctx->state = wait_key0;
         return CLIENT_SUCCESS;
     }
 
@@ -206,6 +237,11 @@ parse_start_array(void* ctx_) {
         return CLIENT_SUCCESS;
     }
 
+    if (ctx->state == wait_array3) {
+        ctx->state = wait_value3;
+        return CLIENT_SUCCESS;
+    }
+
     if (ctx->state == wait_start) {
         ctx->state = wait_map0;
         return CLIENT_SUCCESS;
@@ -221,6 +257,11 @@ parse_end_array(void* ctx_) {
 
     if (ctx->state == wait_map1) {
         ctx->state = wait_key0;
+        return CLIENT_SUCCESS;
+    }
+
+    if (ctx->state == wait_value3) {
+        ctx->state = wait_key3;
         return CLIENT_SUCCESS;
     }
 
