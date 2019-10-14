@@ -14,6 +14,9 @@ init_context(Context* ctx) {
     // ready to receive next row
     ctx->row_index = -1;
 
+    // not nested in the beginning
+    ctx->nesting_level = 0;
+
     // initialiazing state as waiting for parse
     ctx->state = wait_start;
 }
@@ -145,6 +148,7 @@ parse_string(void* ctx_, const unsigned char* str, size_t size) {
 static int
 parse_start_map(void* ctx_) {
     Context* ctx = (Context*) ctx_;
+    ctx->nesting_level++;
 
     if (ctx->state == wait_value1) {
         ctx->state = wait_key2;
@@ -174,7 +178,9 @@ parse_start_map(void* ctx_) {
 static int
 parse_map_key(void* ctx_, const unsigned char* key, size_t size) {
     Context* ctx = (Context*) ctx_;
-    ctx->key = std::string((const char*) key, (const char*) key + size);
+    ctx->key =  
+        std::string((const char*) key, (const char*) key + size) +
+        "#" + std::to_string(ctx->nesting_level);
 
     if (ctx->state == wait_key2) {
         ctx->state = wait_value2;
@@ -203,6 +209,7 @@ parse_map_key(void* ctx_, const unsigned char* key, size_t size) {
 static int
 parse_end_map(void* ctx_) {
     Context* ctx = (Context*) ctx_;
+    ctx->nesting_level--;
 
     if (ctx->state == wait_key2) {
         ctx->state = wait_key1;

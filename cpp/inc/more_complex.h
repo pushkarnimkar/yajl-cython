@@ -29,9 +29,14 @@ typedef struct {
     // state holds parser state
     ParseState state;
 
-    // row_index holds row index for each row. with each new row this should 
-    // be increased by 1, thus, initialized with -1.
+    // row_index holds row index for each row. with each new row this 
+    // should be increased by 1, thus, initialized with -1.
     int row_index;
+
+    // nesting_level indicates level of nesting in json object. This
+    // should increase by one with every start_map and decrease by one
+    // with every end_map token
+    int nesting_level;
 
     // holds recently encountered key
     std::string key;

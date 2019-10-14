@@ -1,6 +1,6 @@
 LIBS = -lyajl
 DEFS = 
-CFLAGS = -g
+CFLAGS = -g -std=c++11
 TARGET = 
 OBJS = obj
 BINS = bin
